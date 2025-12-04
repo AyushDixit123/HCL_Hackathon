@@ -57,8 +57,20 @@ if (process.env.NODE_ENV !== 'test') {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => {
+  .then(async () => {
     console.log('Connected to MongoDB');
+    
+    // Initialize database on first setup (only if AUTO_INIT is enabled or not set)
+    if (process.env.AUTO_INIT !== 'false') {
+      try {
+        const initialize = require('./scripts/init');
+        await initialize();
+      } catch (error) {
+        // Don't fail server startup if init fails, just log it
+        console.warn('⚠️  Database initialization warning:', error.message);
+      }
+    }
+    
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
