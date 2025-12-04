@@ -57,8 +57,14 @@ const rules = [
 
 async function seedRules() {
   try {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/healthcare_wellness');
-    console.log('Connected to MongoDB');
+    // Only connect if not already connected
+    if (mongoose.connection.readyState === 0) {
+      await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/healthcare_wellness', {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      });
+      console.log('Connected to MongoDB');
+    }
 
     // Clear existing rules
     await PreventiveRule.deleteMany({});
@@ -66,14 +72,27 @@ async function seedRules() {
 
     // Insert new rules
     await PreventiveRule.insertMany(rules);
-    console.log(`Seeded ${rules.length} preventive care rules`);
+    console.log(`✅ Seeded ${rules.length} preventive care rules`);
 
-    process.exit(0);
+    return true;
   } catch (error) {
     console.error('Error seeding rules:', error);
-    process.exit(1);
+    throw error;
   }
 }
 
-seedRules();
+// Run if called directly
+if (require.main === module) {
+  require('dotenv').config();
+  seedRules()
+    .then(() => {
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('Failed to seed rules:', error);
+      process.exit(1);
+    });
+}
+
+module.exports = seedRules;
 
