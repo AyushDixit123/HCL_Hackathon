@@ -1,160 +1,264 @@
 import { useEffect, useState } from "react";
-import {
-  fetchPatientDashboard,
-  fetchWellnessScore,
-  fetchReminders,
-} from "../api/patientApi";
-
-import StatCard from "../components/StatCard";
-import ProgressBar from "../components/ProgressBar";
-import ReminderItem from "../components/ReminderItem";
+import PatientSidebar from "./PatientSidebar";
 
 export default function PatientDashboard() {
-
-  /* MOCK PATIENT ID */
-  const patientId = "demo123";
-
   const [dashboard, setDashboard] = useState(null);
-  const [score, setScore] = useState(0);
-  const [reminders, setReminders] = useState([]);
+  const [healthTip, setHealthTip] = useState("");
 
   useEffect(() => {
-
-    /* TEMP MOCK DATA (works even without backend) */
+    // Mock data matching the design
     setDashboard({
-      steps: 3620,
-      stepGoal: 8000,
-      sleep: 6.5,
-      sleepGoal: 8,
-      water: 5,
-      waterGoal: 8,
-      activeTime: 56,
-      distance: 12.3,
-      calories: 1713,
+      patientName: "David",
+      steps: {
+        current: 3620,
+        goal: 6000,
+        percentage: 60,
+      },
+      activeTime: {
+        current: 56,
+        goal: 60,
+        calories: 1712,
+        distance: 1.23,
+      },
+      sleep: {
+        hours: 6,
+        minutes: 30,
+        schedule: "11:30 pm - 06:00 am",
+      },
+      reminders: [
+        {
+          id: 1,
+          text: "Screening: Annual health check on 23rd Jan 2020",
+          type: "preventive",
+        },
+      ],
     });
 
-    setScore(72);
-
-    setReminders([
-      { id: 1, text: "Drink Water", time: "5:30 PM", type: "Hydration" },
-      { id: 2, text: "Evening Walk", time: "7:00 PM", type: "Exercise" },
-      { id: 3, text: "Blood Test Reminder", time: "Tomorrow", type: "Preventive" },
-    ]);
-
-    /* REAL BACKEND CALLS (UNCOMMENT WHEN API READY) */
-
-    /*
-    fetchPatientDashboard(patientId).then(res =>
-      setDashboard(res.data)
+    setHealthTip(
+      "Stay hydrated: aim to drink at least 8 glasses of water per day."
     );
 
-    fetchWellnessScore(patientId).then(res =>
-      setScore(res.data.score)
-    );
-
-    fetchReminders(patientId).then(res =>
-      setReminders(res.data)
-    );
-    */
-
+    // TODO: Replace with actual API calls
+    // fetchPatientDashboard(patientId).then(res => setDashboard(res.data));
   }, []);
 
-  if (!dashboard) return <div>Loading...</div>;
+  if (!dashboard) {
+    return (
+      <div className="flex min-h-screen bg-slate-950">
+        <PatientSidebar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-slate-400">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  const stepsPercentage = Math.round(
+    (dashboard.steps.current / dashboard.steps.goal) * 100
+  );
+  const activeTimePercentage = Math.round(
+    (dashboard.activeTime.current / dashboard.activeTime.goal) * 100
+  );
 
   return (
-    <div className="space-y-8">
+    <div className="flex min-h-screen bg-slate-950 text-slate-100">
+      <PatientSidebar />
 
-      {/* HEADER */}
-      <div>
-        <h1 className="text-3xl font-bold text-white">
-          Welcome Back 👋
-        </h1>
-        <p className="text-slate-400">
-          Here's your wellness snapshot for today
-        </p>
-      </div>
+      <main className="flex-1 p-8">
+        {/* Welcome Message */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Welcome, {dashboard.patientName}
+          </h1>
+        </div>
 
-      {/* STATS */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <StatCard
-          title="Steps"
-          value={dashboard.steps}
-          unit="steps"
-          subtitle={`Goal: ${dashboard.stepGoal}`}
-        />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Wellness Goals & Info */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Wellness Goals Section */}
+            <section className="bg-slate-900 rounded-xl p-6 border border-slate-800">
+              <h2 className="text-xl font-semibold mb-4 text-white">
+                Wellness Goals
+              </h2>
 
-        <StatCard
-          title="Sleep"
-          value={dashboard.sleep}
-          unit="hrs"
-          subtitle={`Goal: ${dashboard.sleepGoal}`}
-        />
+              <div className="space-y-4">
+                {/* Steps Card */}
+                <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-slate-300 font-medium">Steps</span>
+                    <span className="text-emerald-400 font-semibold">
+                      {stepsPercentage}%
+                    </span>
+                  </div>
+                  <div className="text-2xl font-bold text-white mb-2">
+                    {dashboard.steps.current.toLocaleString()}
+                  </div>
+                  <div className="w-full bg-slate-700 rounded-full h-2.5">
+                    <div
+                      className="bg-emerald-500 h-2.5 rounded-full transition-all"
+                      style={{ width: `${stepsPercentage}%` }}
+                    ></div>
+                  </div>
+                  <div className="text-sm text-slate-400 mt-1">
+                    Goal: {dashboard.steps.goal.toLocaleString()} steps
+                  </div>
+                </div>
 
-        <StatCard
-          title="Active"
-          value={dashboard.activeTime}
-          unit="min"
-          subtitle={`${dashboard.distance} km | ${dashboard.calories} kcal`}
-        />
-      </div>
+                {/* Active Time Card */}
+                <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-slate-300 font-medium">
+                      Active Time
+                    </span>
+                  </div>
+                  <div className="text-2xl font-bold text-white mb-2">
+                    {dashboard.activeTime.current} / {dashboard.activeTime.goal}{" "}
+                    mins
+                  </div>
+                  <div className="text-sm text-slate-400">
+                    {dashboard.activeTime.calories} Kcal |{" "}
+                    {dashboard.activeTime.distance} km
+                  </div>
+                </div>
 
-      {/* GOALS */}
-      <section className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
-        <h2 className="text-xl font-semibold">
-          Daily Goals
-        </h2>
+                {/* Sleep Card */}
+                <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-slate-300 font-medium">Sleep</span>
+                  </div>
+                  <div className="text-2xl font-bold text-white mb-2">
+                    {dashboard.sleep.hours} hrs {dashboard.sleep.minutes} mins
+                  </div>
+                  <div className="text-sm text-slate-400">
+                    {dashboard.sleep.schedule}
+                  </div>
+                  {/* Sleep quality indicators */}
+                  <div className="flex gap-1 mt-2">
+                    {[...Array(8)].map((_, i) => (
+                      <div
+                        key={i}
+                        className={`w-2 h-2 rounded-full ${
+                          i < 6 ? "bg-emerald-400" : "bg-slate-600"
+                        }`}
+                      ></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
 
-        <ProgressBar
-          label="Steps"
-          value={dashboard.steps}
-          max={dashboard.stepGoal}
-        />
+            {/* Preventive Care Reminders */}
+            <section className="bg-slate-900 rounded-xl p-6 border border-slate-800">
+              <h2 className="text-xl font-semibold mb-4 text-white">
+                Preventive Care Reminders
+              </h2>
+              <ul className="space-y-2">
+                {dashboard.reminders.map((reminder) => (
+                  <li
+                    key={reminder.id}
+                    className="text-slate-300 flex items-start gap-2"
+                  >
+                    <span className="text-emerald-400 mt-1">•</span>
+                    <span>{reminder.text}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
 
-        <ProgressBar
-          label="Sleep (Hours)"
-          value={dashboard.sleep}
-          max={dashboard.sleepGoal}
-        />
-
-        <ProgressBar
-          label="Water Intake (Glasses)"
-          value={dashboard.water}
-          max={dashboard.waterGoal}
-        />
-      </section>
-
-      {/* WELLNESS SCORE */}
-      <section className="bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-xl p-6 text-white">
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-xl font-semibold">
-              Wellness Score
-            </h2>
-            <p className="text-sm opacity-80">
-              Based on activity, sleep & compliance
-            </p>
+            {/* Health Tip of the Day */}
+            <section className="bg-gradient-to-br from-blue-900/50 to-indigo-900/50 rounded-xl p-6 border border-blue-800/30">
+              <h2 className="text-xl font-semibold mb-3 text-white">
+                Health Tip of the Day
+              </h2>
+              <p className="text-slate-200 leading-relaxed">{healthTip}</p>
+            </section>
           </div>
 
-          <div className="text-4xl font-bold">
-            {score}/100
+          {/* Right Column - Activity Metrics Cards */}
+          <div className="space-y-6">
+            {/* Steps Card */}
+            <div className="bg-slate-900 rounded-xl p-6 border border-slate-800">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="text-2xl">🚶</div>
+                <h3 className="text-lg font-semibold text-white">Steps</h3>
+              </div>
+              <div className="mb-4">
+                <div className="text-3xl font-bold text-white mb-1">
+                  {dashboard.steps.current.toLocaleString()} /{" "}
+                  {dashboard.steps.goal.toLocaleString()} steps
+                </div>
+                <div className="w-full bg-slate-700 rounded-full h-3 mb-2">
+                  <div
+                    className="bg-emerald-500 h-3 rounded-full transition-all"
+                    style={{ width: `${stepsPercentage}%` }}
+                  ></div>
+                </div>
+                <div className="text-sm text-emerald-400 font-semibold">
+                  {stepsPercentage}%
+                </div>
+              </div>
+              {/* Mini bar chart */}
+              <div className="flex items-end gap-1 h-12 mt-4">
+                {[...Array(7)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex-1 bg-emerald-500/30 rounded-t"
+                    style={{
+                      height: `${Math.random() * 60 + 40}%`,
+                    }}
+                  ></div>
+                ))}
+                <div className="text-xs text-slate-400 mt-1">Now</div>
+              </div>
+            </div>
+
+            {/* Active Time Card */}
+            <div className="bg-slate-900 rounded-xl p-6 border border-slate-800">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="text-2xl">⏱️</div>
+                <h3 className="text-lg font-semibold text-white">Active Time</h3>
+              </div>
+              <div className="mb-4">
+                <div className="text-3xl font-bold text-white mb-2">
+                  {dashboard.activeTime.current} / {dashboard.activeTime.goal}{" "}
+                  mins
+                </div>
+                <div className="text-slate-300 text-sm">
+                  {dashboard.activeTime.calories} Kcal |{" "}
+                  {dashboard.activeTime.distance} km
+                </div>
+              </div>
+            </div>
+
+            {/* Sleep Card */}
+            <div className="bg-slate-900 rounded-xl p-6 border border-slate-800">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="text-2xl">🌙</div>
+                <h3 className="text-lg font-semibold text-white">Sleep</h3>
+              </div>
+              <div className="mb-4">
+                <div className="text-3xl font-bold text-white mb-2">
+                  {dashboard.sleep.hours} hrs {dashboard.sleep.minutes} mins
+                </div>
+                <div className="text-slate-300 text-sm">
+                  {dashboard.sleep.schedule}
+                </div>
+              </div>
+              {/* Sleep quality indicators */}
+              <div className="flex gap-1.5">
+                {[...Array(8)].map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-3 h-3 rounded-full ${
+                      i < 6 ? "bg-emerald-400" : "bg-slate-600"
+                    }`}
+                  ></div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
-      </section>
-
-      {/* REMINDERS */}
-      <section className="space-y-4">
-        <h2 className="text-xl font-semibold">
-          Reminders
-        </h2>
-
-        {reminders.map(r => (
-          <ReminderItem
-            key={r.id}
-            {...r}
-          />
-        ))}
-      </section>
-
+      </main>
     </div>
   );
 }

@@ -1,43 +1,56 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from "react-router-dom";
+import PatientDashboard from "./components/patient/PatientDashboard";
 
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-slate-950 text-slate-100">
-        <Header />
-
-        <main className="max-w-6xl mx-auto px-4 py-6">
-          <Routes>
-            {/* Public / Landing */}
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/public-health" element={<PublicHealthPage />} />
-
-            {/* Auth */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-
-            {/* Patient area */}
-            <Route path="/patient/dashboard" element={<PatientDashboard />} />
-            <Route path="/patient/profile" element={<PatientProfile />} />
-            <Route path="/patient/goals" element={<GoalTracker />} />
-            <Route path="/patient/wellness" element={<WellnessScorePage />} />
-            <Route path="/patient/symptoms" element={<SymptomChecker />} />
-            <Route path="/patient/reminders" element={<RemindersPage />} />
-            <Route path="/patient/emergency-card" element={<EmergencyCardPage />} />
-
-            {/* Provider area */}
-            <Route path="/provider/dashboard" element={<ProviderDashboard />} />
-            <Route
-              path="/provider/patients/:patientId"
-              element={<ProviderPatientDetail />}
-            />
-
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </main>
-      </div>
+      <Routes>
+        {/* Patient Dashboard - Full page layout with sidebar */}
+        <Route path="/patient/dashboard" element={<PatientDashboard />} />
+        
+        {/* All other routes with Header */}
+        <Route path="*" element={<LayoutWithHeader />} />
+      </Routes>
     </Router>
+  );
+}
+
+/* ---------- Layout Component ---------- */
+
+function LayoutWithHeader() {
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <Header />
+      <main className="max-w-6xl mx-auto px-4 py-6">
+        <Routes>
+          {/* Public / Landing */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/public-health" element={<PublicHealthPage />} />
+
+          {/* Auth */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+
+          {/* Other Patient routes */}
+          <Route path="/patient/profile" element={<PatientProfile />} />
+          <Route path="/patient/goals" element={<GoalTracker />} />
+          <Route path="/patient/wellness" element={<WellnessScorePage />} />
+          <Route path="/patient/symptoms" element={<SymptomChecker />} />
+          <Route path="/patient/reminders" element={<RemindersPage />} />
+          <Route path="/patient/emergency-card" element={<EmergencyCardPage />} />
+
+          {/* Provider area */}
+          <Route path="/provider/dashboard" element={<ProviderDashboard />} />
+          <Route
+            path="/provider/patients/:patientId"
+            element={<ProviderPatientDetail />}
+          />
+
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
+    </div>
   );
 }
 
@@ -184,22 +197,7 @@ function RegisterPage() {
 
 /* ---------- Patient Area ---------- */
 
-function PatientDashboard() {
-  return (
-    <section className="space-y-4">
-      <h2 className="text-2xl font-semibold">Patient Dashboard</h2>
-      <p className="text-slate-300">
-        Overview of wellness goals, preventive care reminders, and your
-        personalized wellness score.
-      </p>
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card title="Goals" to="/patient/goals" description="Track steps, sleep, and water intake." />
-        <Card title="Reminders" to="/patient/reminders" description="Preventive care & medication reminders." />
-        <Card title="Wellness Score" to="/patient/wellness" description="View your health index and trends." />
-      </div>
-    </section>
-  );
-}
+// PatientDashboard is now imported from components/patient/PatientDashboard.jsx
 
 function PatientProfile() {
   return (
