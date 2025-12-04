@@ -8,6 +8,8 @@ import SymptomChecker from "./components/patient/SymptomChecker";
 import Reminders from "./components/patient/Reminders";
 import EmergencyCard from "./components/patient/EmergencyCard";
 import ProviderDashboard from "./components/provider/ProviderDashboard";
+import ProviderPatientDetail from "./components/provider/ProviderPatientDetail";
+import ProviderAppointments from "./components/provider/ProviderAppointments";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import PublicHealth from "./components/PublicHealth";
@@ -28,6 +30,7 @@ function App() {
         {/* Provider routes */}
         <Route path="/provider/dashboard" element={<ProviderDashboard />} />
         <Route path="/provider/patients/:patientId" element={<ProviderPatientDetail />} />
+        <Route path="/provider/appointments" element={<ProviderAppointments />} />
 
         {/* Auth routes */}
         <Route path="/login" element={<Login />} />
@@ -225,20 +228,6 @@ function LandingPage() {
   );
 }
 
-/* ---------- Provider Patient Detail ---------- */
-
-function ProviderPatientDetail() {
-  return (
-    <section className="space-y-3">
-      <h2 className="text-2xl font-semibold">Patient Detail</h2>
-      <p className="text-slate-300">
-        Compliance overview, wellness score, and doctor advisory notes for a
-        specific patient.
-      </p>
-      {/* TODO: Bind to /api/providers/:id/patients/:patientId/compliance & /api/advisories */}
-    </section>
-  );
-}
 
 /* ---------- UI Helper ---------- */
 
